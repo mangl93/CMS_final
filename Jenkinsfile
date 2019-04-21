@@ -1,14 +1,24 @@
 pipeline {
   agent any
   stages {
-    stage('INICIO') {
+    stage('BUILD') {
       steps {
-        echo 'Hola desde el inicio'
+        sh 'docker build -t app:test .'
       }
     }
-    stage('STAGE2') {
-      steps {
-        echo 'Hola desde el STAGE 2'
+    stage('TEST') {
+      parallel {
+        stage('TEST') {
+          steps {
+            sh 'docker run --rm --name app -id -p 80:80 app:test'
+            sh '/bin/nc -vz localhost 80'
+          }
+        }
+        stage('') {
+          steps {
+            sh 'docker stop app'
+          }
+        }
       }
     }
   }
